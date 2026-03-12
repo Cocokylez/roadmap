@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java Habit Tracker — Roadmap</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=JetBrains+Mono:wght@400;600&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #070b14;
+    --surface: #0d1526;
+    --surface2: #111c2e;
+    --border: #1a2a42;
+    --border-light: #243850;
+    --text: #dce8f5;
+    --muted: #4a6480;
+    --dim: #2a3f58;
+    --green: #3dffa0;
+    --green-dim: #0e2a1e;
+    --green-border: #1a5c3a;
+    --blue: #60b4ff;
+    --blue-dim: #0a1c35;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Lora', Georgia, serif;
+    min-height: 100vh;
+    padding: 48px 16px 80px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Subtle grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(96,180,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(96,180,255,0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Glow orbs */
+  body::after {
+    content: '';
+    position: fixed;
+    top: -200px;
+    left: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(61,255,160,0.04) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .glow-orb-right {
+    position: fixed;
+    bottom: -150px;
+    right: -150px;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(96,180,255,0.05) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    max-width: 840px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── HEADER ── */
+  header {
+    margin-bottom: 40px;
+    animation: fadeDown 0.7s ease both;
+  }
+
+  .header-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    border: 1px solid var(--border-light);
+    padding: 4px 10px;
+    border-radius: 3px;
+    margin-bottom: 14px;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(28px, 5vw, 44px);
+    font-weight: 900;
+    color: #f0f8ff;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    margin-bottom: 8px;
+  }
+
+  h1 span {
+    color: var(--green);
+  }
+
+  .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* ── PROGRESS BAR ── */
+  .progress-wrap {
+    margin: 28px 0 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    animation: fadeDown 0.7s 0.1s ease both;
+  }
+
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .progress-meta .pct {
+    color: var(--blue);
+    transition: color 0.4s;
+  }
+
+  .progress-meta .pct.done { color: var(--green); }
+
+  .progress-track {
+    height: 5px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--green), var(--blue));
+    border-radius: 99px;
+    transition: width 0.6s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* ── PHASES ── */
+  .phases { margin-top: 36px; }
+
+  .phase {
+    margin-bottom: 32px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .phase-icon { font-size: 18px; flex-shrink: 0; }
+
+  .phase-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  .phase-line {
+    flex: 1;
+    height: 1px;
+    opacity: 0.2;
+  }
+
+  .phase-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  /* ── TASK CARD ── */
+  .task {
+    margin-bottom: 7px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--border-light);
+    background: var(--surface);
+    overflow: hidden;
+    transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
+  }
+
+  .task:hover { box-shadow: 0 2px 16px rgba(0,0,0,0.3); }
+
+  .task.done {
+    background: var(--green-dim);
+    border-color: var(--green-border);
+  }
+
+  .task-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 16px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  /* Checkbox */
+  .checkbox {
+    width: 22px;
+    height: 22px;
+    border-radius: 5px;
+    border: 2px solid var(--dim);
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 13px;
+    color: #000;
+    font-weight: 900;
+  }
+
+  .task.done .checkbox {
+    background: var(--green);
+    border-color: var(--green);
+  }
+
+  .step-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    min-width: 30px;
+    flex-shrink: 0;
+  }
+
+  .task-title {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'Lora', Georgia, serif;
+    color: var(--text);
+    transition: color 0.2s, opacity 0.2s;
+  }
+
+  .task.done .task-title {
+    color: var(--green);
+    text-decoration: line-through;
+    opacity: 0.55;
+  }
+
+  .expand-arrow {
+    font-size: 10px;
+    color: var(--muted);
+    transition: transform 0.25s;
+    flex-shrink: 0;
+  }
+
+  .task.open .expand-arrow { transform: rotate(180deg); }
+
+  /* ── DETAIL PANEL ── */
+  .task-detail {
+    display: none;
+    padding: 0 16px 16px 64px;
+  }
+
+  .task.open .task-detail { display: block; }
+
+  .detail-desc {
+    font-size: 13px;
+    color: #7a9ab8;
+    line-height: 1.75;
+    margin-bottom: 12px;
+    font-family: 'Lora', Georgia, serif;
+  }
+
+  .tip-box {
+    background: var(--blue-dim);
+    border: 1px solid #1a3a5c;
+    border-radius: 6px;
+    padding: 9px 13px;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin-bottom: 10px;
+  }
+
+  .tip-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+
+  .tip-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--blue);
+    line-height: 1.65;
+  }
+
+  pre.code-block {
+    background: #020810;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 13px 15px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: #7dd3fc;
+    overflow-x: auto;
+    line-height: 1.65;
+    white-space: pre;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    margin-top: 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--dim);
+    letter-spacing: 1px;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .phase:nth-child(1) { animation-delay: 0.10s; }
+  .phase:nth-child(2) { animation-delay: 0.18s; }
+  .phase:nth-child(3) { animation-delay: 0.26s; }
+  .phase:nth-child(4) { animation-delay: 0.34s; }
+  .phase:nth-child(5) { animation-delay: 0.42s; }
+  .phase:nth-child(6) { animation-delay: 0.50s; }
+  .phase:nth-child(7) { animation-delay: 0.58s; }
+  .phase:nth-child(8) { animation-delay: 0.66s; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 99px; }
+</style>
+</head>
+<body>
+
+<div class="glow-orb-right"></div>
+
+<div class="wrapper">
+
+  <header>
+    <div class="header-tag">// beginner college project</div>
+    <h1>Java Habit Tracker<br><span>Roadmap</span></h1>
+    <p class="subtitle">Java Swing · 8 Phases · 26 Steps</p>
+
+    <div class="progress-wrap">
+      <div class="progress-meta">
+        <span id="prog-label">0 / 26 steps completed</span>
+        <span class="pct" id="prog-pct">0%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="prog-fill"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="phases" id="phases-container"></div>
+
+  <footer id="footer-msg">Click any step to expand · Check it off when done</footer>
+
+</div>
+
+<script>
+const STEPS = [
+  {
+    phase: "Phase 1 — Planning",
+    color: "#FF6B6B",
+    icon: "🗺️",
+    tasks: [
+      {
+        id: 1,
+        title: "Sketch your app layout on paper",
+        detail: "Draw a rough wireframe: a title bar at top, a table in the middle showing habit rows, and buttons (Add, Delete, Mark Done) at the bottom. This becomes your blueprint.",
+        tip: "Decide on columns: Habit Name | Category | Streak | Total Done | Last Completed",
+        code: null
+      },
+      {
+        id: 2,
+        title: "List all features you'll build",
+        detail: "Write down: Add habit, Delete habit, Mark habit as done today, Show streak count, Save to file, Load from file, Dark mode UI. These map directly to methods you'll code.",
+        tip: "Keep scope small — finish these 7 features before adding anything extra.",
+        code: null
+      },
+      {
+        id: 3,
+        title: "Set up your Java project in your IDE",
+        detail: "Create a new Java project named 'HabitTracker'. Add a package called 'habittracker'. You'll create all classes inside this package.",
+        tip: "Use IntelliJ IDEA (free Community edition) or Eclipse. Enable 'Create main class' when setting up.",
+        code: `// Project structure:
+// src/
+//   habittracker/
+//     Habit.java
+//     HabitManager.java
+//     HabitTrackerApp.java  ← main GUI`
+      }
+    ]
+  },
+  {
+    phase: "Phase 2 — Core Classes",
+    color: "#FFB347",
+    icon: "🧱",
+    tasks: [
+      {
+        id: 4,
+        title: "Create the Habit.java class",
+        detail: "This class is your data model. It holds all info about a single habit. Add fields for name, category, currentStreak, totalCompleted, and lastCompleted (a String for the date).",
+        tip: "Use 'implements Serializable' on the class — this lets Java save the object to a file later.",
+        code: `public class Habit implements Serializable {
+  private String name;
+  private String category;
+  private int currentStreak;
+  private int totalCompleted;
+  private String lastCompleted;
+  // Add constructor, getters, setters below
+}`
+      },
+      {
+        id: 5,
+        title: "Add constructor and getters/setters to Habit",
+        detail: "Write a constructor that takes name and category as parameters. Set streak and totalCompleted to 0, and lastCompleted to 'Never'. Generate getters/setters using your IDE (Alt+Insert in IntelliJ).",
+        tip: "Your IDE can auto-generate all getters/setters — right-click → Generate → Getters and Setters.",
+        code: `public Habit(String name, String category) {
+  this.name = name;
+  this.category = category;
+  this.currentStreak = 0;
+  this.totalCompleted = 0;
+  this.lastCompleted = "Never";
+}`
+      },
+      {
+        id: 6,
+        title: "Create the HabitManager.java class",
+        detail: "This class manages a list of Habit objects. It handles adding, removing, and updating habits. Use an ArrayList<Habit> as the internal storage.",
+        tip: "Think of HabitManager as the 'brain' — your GUI will call its methods, never touching the list directly.",
+        code: `public class HabitManager {
+  private ArrayList<Habit> habits = new ArrayList<>();
+
+  public void addHabit(Habit h) { habits.add(h); }
+  public void removeHabit(int index) { habits.remove(index); }
+  public ArrayList<Habit> getHabits() { return habits; }
+}`
+      },
+      {
+        id: 7,
+        title: "Add markDone() method to HabitManager",
+        detail: "This method updates a habit when the user marks it as completed today. It increments totalCompleted, updates lastCompleted to today's date, and increases currentStreak by 1.",
+        tip: "Use LocalDate.now().toString() to get today's date as a String like '2024-11-15'.",
+        code: `public void markDone(int index) {
+  Habit h = habits.get(index);
+  h.setTotalCompleted(h.getTotalCompleted() + 1);
+  h.setCurrentStreak(h.getCurrentStreak() + 1);
+  h.setLastCompleted(LocalDate.now().toString());
+}`
+      }
+    ]
+  },
+  {
+    phase: "Phase 3 — GUI Setup",
+    color: "#4ECDC4",
+    icon: "🖥️",
+    tasks: [
+      {
+        id: 8,
+        title: "Create HabitTrackerApp.java with JFrame",
+        detail: "This is your main window. Extend JFrame and set up the window: title, size, close behavior, and layout. Call setVisible(true) at the end of your constructor.",
+        tip: "Always call setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE) or your app won't close when you click X.",
+        code: `public class HabitTrackerApp extends JFrame {
+  public HabitTrackerApp() {
+    setTitle("Digital Habit Tracker");
+    setSize(800, 500);
+    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    setLayout(new BorderLayout());
+    // add panels here
+    setVisible(true);
+  }
+  public static void main(String[] args) {
+    new HabitTrackerApp();
+  }
+}`
+      },
+      {
+        id: 9,
+        title: "Set up JTable to display habits",
+        detail: "Create a DefaultTableModel with column names, then a JTable using that model. Wrap the JTable in a JScrollPane and add it to the CENTER of your BorderLayout.",
+        tip: "Never add JTable directly to a panel — always wrap it in JScrollPane first or column headers won't show.",
+        code: `String[] columns = {"Habit", "Category", "Streak 🔥", "Total ✅", "Last Done"};
+DefaultTableModel model = new DefaultTableModel(columns, 0);
+JTable table = new JTable(model);
+JScrollPane scrollPane = new JScrollPane(table);
+add(scrollPane, BorderLayout.CENTER);`
+      },
+      {
+        id: 10,
+        title: "Add a button panel at the bottom",
+        detail: "Create a JPanel with FlowLayout for your buttons: 'Add Habit', 'Delete', 'Mark Done', 'Save', 'Load'. Add this panel to the SOUTH of your BorderLayout.",
+        tip: "Name your button variables clearly: btnAdd, btnDelete, btnMarkDone, btnSave, btnLoad.",
+        code: `JPanel btnPanel = new JPanel(new FlowLayout());
+JButton btnAdd = new JButton("➕ Add Habit");
+JButton btnDelete = new JButton("🗑 Delete");
+JButton btnMarkDone = new JButton("✅ Mark Done");
+btnPanel.add(btnAdd);
+btnPanel.add(btnDelete);
+btnPanel.add(btnMarkDone);
+add(btnPanel, BorderLayout.SOUTH);`
+      },
+      {
+        id: 11,
+        title: "Add a title label at the top",
+        detail: "Create a JLabel for the app title and add it to the NORTH position. Style it with a large, bold font using label.setFont(new Font(...)).",
+        tip: "JLabel text supports basic HTML: new JLabel(\"<html><b>🌱 Habit Tracker</b></html>\")",
+        code: `JLabel title = new JLabel("🌱 Digital Habit Tracker", SwingConstants.CENTER);
+title.setFont(new Font("Segoe UI", Font.BOLD, 22));
+title.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+add(title, BorderLayout.NORTH);`
+      }
+    ]
+  },
+  {
+    phase: "Phase 4 — CRUD Operations",
+    color: "#A29BFE",
+    icon: "⚙️",
+    tasks: [
+      {
+        id: 12,
+        title: "Implement Add Habit button",
+        detail: "Use JOptionPane.showInputDialog() to ask the user for a habit name and category. Create a new Habit, add it to HabitManager, then refresh the table.",
+        tip: "Always validate that the user didn't click Cancel (check if input == null) before creating the Habit.",
+        code: `btnAdd.addActionListener(e -> {
+  String name = JOptionPane.showInputDialog("Habit name:");
+  if (name != null && !name.isBlank()) {
+    String cat = JOptionPane.showInputDialog("Category:");
+    manager.addHabit(new Habit(name, cat != null ? cat : "General"));
+    refreshTable();
+  }
+});`
+      },
+      {
+        id: 13,
+        title: "Write the refreshTable() helper method",
+        detail: "This method clears all rows from the table model, then loops through HabitManager's list and adds each habit as a new row. Call this after every Add/Delete/Mark Done action.",
+        tip: "model.setRowCount(0) is the cleanest way to clear all rows from a DefaultTableModel.",
+        code: `private void refreshTable() {
+  model.setRowCount(0);
+  for (Habit h : manager.getHabits()) {
+    model.addRow(new Object[]{
+      h.getName(), h.getCategory(),
+      h.getCurrentStreak(), h.getTotalCompleted(),
+      h.getLastCompleted()
+    });
+  }
+}`
+      },
+      {
+        id: 14,
+        title: "Implement Delete Habit button",
+        detail: "Get the selected row index from the JTable. If a row is selected (index >= 0), confirm with the user via JOptionPane, then call manager.removeHabit(index) and refresh the table.",
+        tip: "table.getSelectedRow() returns -1 if nothing is selected — always check this first!",
+        code: `btnDelete.addActionListener(e -> {
+  int row = table.getSelectedRow();
+  if (row >= 0) {
+    int confirm = JOptionPane.showConfirmDialog(this, "Delete this habit?");
+    if (confirm == JOptionPane.YES_OPTION) {
+      manager.removeHabit(row);
+      refreshTable();
+    }
+  } else {
+    JOptionPane.showMessageDialog(this, "Select a habit first.");
+  }
+});`
+      },
+      {
+        id: 15,
+        title: "Implement Mark Done button",
+        detail: "Get the selected row, call manager.markDone(row), then refresh the table. Show a small congratulatory message to give positive feedback to the user.",
+        tip: "Consider checking if the habit was already marked done today — compare lastCompleted to LocalDate.now().toString() to prevent double-counting.",
+        code: `btnMarkDone.addActionListener(e -> {
+  int row = table.getSelectedRow();
+  if (row >= 0) {
+    manager.markDone(row);
+    refreshTable();
+    JOptionPane.showMessageDialog(this, "🔥 Streak updated! Keep it up!");
+  }
+});`
+      }
+    ]
+  },
+  {
+    phase: "Phase 5 — File Handling",
+    color: "#FD79A8",
+    icon: "💾",
+    tasks: [
+      {
+        id: 16,
+        title: "Add saveHabits() to HabitManager",
+        detail: "Use ObjectOutputStream to write the entire habits ArrayList to a file called 'habits.dat'. Wrap Serializable — you already added that to Habit in Step 4.",
+        tip: "Catch IOException here and print the error. The file will be created in your project's root folder.",
+        code: `public void saveHabits() throws IOException {
+  try (ObjectOutputStream oos = new ObjectOutputStream(
+      new FileOutputStream("habits.dat"))) {
+    oos.writeObject(habits);
+  }
+}`
+      },
+      {
+        id: 17,
+        title: "Add loadHabits() to HabitManager",
+        detail: "Use ObjectInputStream to read the habits ArrayList back from 'habits.dat'. Cast the result to ArrayList<Habit>. If the file doesn't exist yet, catch the exception and do nothing.",
+        tip: "Always suppress the unchecked cast warning with @SuppressWarnings(\"unchecked\") above the method.",
+        code: `public void loadHabits() throws IOException, ClassNotFoundException {
+  File f = new File("habits.dat");
+  if (!f.exists()) return;
+  try (ObjectInputStream ois = new ObjectInputStream(
+      new FileInputStream("habits.dat"))) {
+    habits = (ArrayList<Habit>) ois.readObject();
+  }
+}`
+      },
+      {
+        id: 18,
+        title: "Wire Save and Load buttons in the GUI",
+        detail: "Add Save and Load buttons to your button panel. Wrap the calls in try-catch blocks and show success/error messages using JOptionPane.",
+        tip: "Also call loadHabits() inside the HabitTrackerApp constructor so saved data loads automatically on startup.",
+        code: `btnSave.addActionListener(e -> {
+  try {
+    manager.saveHabits();
+    JOptionPane.showMessageDialog(this, "✅ Habits saved!");
+  } catch (IOException ex) {
+    JOptionPane.showMessageDialog(this, "Error saving: " + ex.getMessage());
+  }
+});`
+      }
+    ]
+  },
+  {
+    phase: "Phase 6 — Streak System",
+    color: "#55EFC4",
+    icon: "🔥",
+    tasks: [
+      {
+        id: 19,
+        title: "Add streak-reset logic in markDone()",
+        detail: "Before incrementing the streak, check if the last completed date is yesterday. If it is, increment streak. If it's today already, skip. If it's older than yesterday, reset streak to 1.",
+        tip: "Use LocalDate.parse(h.getLastCompleted()) to convert the stored string back to a date for comparison.",
+        code: `LocalDate today = LocalDate.now();
+LocalDate last = h.getLastCompleted().equals("Never") ?
+  null : LocalDate.parse(h.getLastCompleted());
+
+if (last == null || last.isBefore(today.minusDays(1))) {
+  h.setCurrentStreak(1); // reset
+} else if (last.equals(today.minusDays(1))) {
+  h.setCurrentStreak(h.getCurrentStreak() + 1); // continue
+}
+// if last == today, do nothing (already done)`
+      },
+      {
+        id: 20,
+        title: "Add a summary stats label",
+        detail: "Add a JLabel to the bottom panel showing total habits and the best current streak across all habits. Update it inside refreshTable() each time data changes.",
+        tip: "Use streams: manager.getHabits().stream().mapToInt(Habit::getCurrentStreak).max().orElse(0)",
+        code: `// In refreshTable():
+int best = manager.getHabits().stream()
+  .mapToInt(Habit::getCurrentStreak).max().orElse(0);
+statsLabel.setText("Total Habits: " + manager.getHabits().size()
+  + "  |  Best Streak: 🔥" + best);`
+      }
+    ]
+  },
+  {
+    phase: "Phase 7 — Error Handling",
+    color: "#FDCB6E",
+    icon: "🛡️",
+    tasks: [
+      {
+        id: 21,
+        title: "Wrap all risky operations in try-catch",
+        detail: "Any code that reads/writes files, parses dates, or casts objects can crash. Surround these with try-catch and show the user a friendly message instead of a raw stack trace.",
+        tip: "Never leave a catch block empty — at minimum print the stack trace with ex.printStackTrace() during development.",
+        code: `try {
+  manager.loadHabits();
+  refreshTable();
+} catch (IOException | ClassNotFoundException ex) {
+  JOptionPane.showMessageDialog(this,
+    "Could not load save file. Starting fresh.",
+    "Load Warning", JOptionPane.WARNING_MESSAGE);
+}`
+      },
+      {
+        id: 22,
+        title: "Validate all user input fields",
+        detail: "Before creating a Habit, check: name is not null, name is not blank, and name isn't already in the list. Show a specific error message for each failed check.",
+        tip: "Create a private boolean isValidName(String name) helper method to keep your button listener clean.",
+        code: `private boolean isValidName(String name) {
+  if (name == null || name.isBlank()) {
+    JOptionPane.showMessageDialog(this, "Name cannot be empty.");
+    return false;
+  }
+  return true;
+}`
+      }
+    ]
+  },
+  {
+    phase: "Phase 8 — Styling & Polish",
+    color: "#74B9FF",
+    icon: "🎨",
+    tasks: [
+      {
+        id: 23,
+        title: "Apply a dark color scheme",
+        detail: "Set background colors on your panels, table, and frame. Use Color objects with hex values. Dark mode palette: background #1E1E2E, table #2A2A3E, text #CDD6F4, accent #89B4FA.",
+        tip: "Call table.setFillsViewportHeight(true) so the dark background fills the whole scroll area, not just the rows.",
+        code: `Color bg = new Color(0x1E1E2E);
+Color tableBg = new Color(0x2A2A3E);
+Color fg = new Color(0xCDD6F4);
+
+getContentPane().setBackground(bg);
+table.setBackground(tableBg);
+table.setForeground(fg);
+table.setGridColor(new Color(0x45475A));
+table.setRowHeight(28);`
+      },
+      {
+        id: 24,
+        title: "Style the buttons with custom colors",
+        detail: "Remove the default button border, set background and foreground colors, add padding using an EmptyBorder, and set cursor to HAND_CURSOR for better UX.",
+        tip: "Call button.setFocusPainted(false) and button.setBorderPainted(false) for a flat, modern look.",
+        code: `private JButton styleButton(JButton btn, Color bg) {
+  btn.setBackground(bg);
+  btn.setForeground(Color.WHITE);
+  btn.setFocusPainted(false);
+  btn.setBorderPainted(false);
+  btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+  btn.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
+  return btn;
+}`
+      },
+      {
+        id: 25,
+        title: "Style the JTable header",
+        detail: "Access the table header and set its background, foreground, and font. This makes the column titles stand out clearly against the dark background.",
+        tip: "table.getTableHeader().setReorderingAllowed(false) prevents users from accidentally dragging columns around.",
+        code: `JTableHeader header = table.getTableHeader();
+header.setBackground(new Color(0x313244));
+header.setForeground(new Color(0x89B4FA));
+header.setFont(new Font("Segoe UI", Font.BOLD, 13));
+table.getTableHeader().setReorderingAllowed(false);`
+      },
+      {
+        id: 26,
+        title: "Center the app on screen and final polish",
+        detail: "Call setLocationRelativeTo(null) to center the window on screen. Set a minimum size so the layout doesn't break when resized. Do a final test of all features end-to-end.",
+        tip: "Test this checklist: Add → Mark Done twice → Delete → Save → Close → Reopen → Load. All should work perfectly.",
+        code: `setMinimumSize(new Dimension(600, 400));
+setLocationRelativeTo(null); // center on screen
+
+// Optional: set app icon
+// ImageIcon icon = new ImageIcon("icon.png");
+// setIconImage(icon.getImage());`
+      }
+    ]
+  }
+];
+
+const TOTAL = STEPS.flatMap(s => s.tasks).length;
+let checked = {};
+
+function render() {
+  const container = document.getElementById('phases-container');
+  container.innerHTML = '';
+
+  STEPS.forEach(phase => {
+    const phaseDone = phase.tasks.filter(t => checked[t.id]).length;
+
+    const phaseEl = document.createElement('div');
+    phaseEl.className = 'phase';
+
+    // Phase header
+    const lineColor = phase.color + '33';
+    phaseEl.innerHTML = `
+      <div class="phase-header">
+        <span class="phase-icon">${phase.icon}</span>
+        <span class="phase-title" style="color:${phase.color}">${phase.phase}</span>
+        <div class="phase-line" style="background:${phase.color}"></div>
+        <span class="phase-count">${phaseDone}/${phase.tasks.length}</span>
+      </div>
+    `;
+
+    // Tasks
+    phase.tasks.forEach(task => {
+      const isDone = !!checked[task.id];
+      const taskEl = document.createElement('div');
+      taskEl.className = 'task' + (isDone ? ' done' : '');
+      taskEl.style.borderLeftColor = isDone ? '#3dffa0' : phase.color;
+
+      taskEl.innerHTML = `
+        <div class="task-row">
+          <div class="checkbox" data-id="${task.id}">${isDone ? '✓' : ''}</div>
+          <span class="step-num">#${String(task.id).padStart(2,'0')}</span>
+          <span class="task-title">${task.title}</span>
+          <span class="expand-arrow">▼</span>
+        </div>
+        <div class="task-detail">
+          <p class="detail-desc">${task.detail}</p>
+          <div class="tip-box">
+            <span class="tip-icon">💡</span>
+            <span class="tip-text">${task.tip}</span>
+          </div>
+          ${task.code ? `<pre class="code-block">${escapeHtml(task.code)}</pre>` : ''}
+        </div>
+      `;
+
+      // Checkbox click
+      taskEl.querySelector('.checkbox').addEventListener('click', e => {
+        e.stopPropagation();
+        checked[task.id] = !checked[task.id];
+        render();
+        updateProgress();
+      });
+
+      // Expand click
+      taskEl.querySelector('.task-row').addEventListener('click', () => {
+        taskEl.classList.toggle('open');
+      });
+
+      phaseEl.appendChild(taskEl);
+    });
+
+    container.appendChild(phaseEl);
+  });
+}
+
+function updateProgress() {
+  const done = Object.values(checked).filter(Boolean).length;
+  const pct = Math.round((done / TOTAL) * 100);
+  document.getElementById('prog-label').textContent = `${done} / ${TOTAL} steps completed`;
+  const pctEl = document.getElementById('prog-pct');
+  pctEl.textContent = pct === 100 ? '100% 🎉' : `${pct}%`;
+  pctEl.className = 'pct' + (pct === 100 ? ' done' : '');
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('footer-msg').textContent =
+    pct === 100 ? '🎉 You built it! Submit your project with pride.' : 'Click any step to expand · Check it off when done';
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+render();
+updateProgress();
+</script>
+</body>
+</html>
